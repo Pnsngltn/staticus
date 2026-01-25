@@ -32,3 +32,72 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
     links = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return links
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+        else:
+            # extract images and start spliting into nodes
+            images = extract_markdown_images(node.text)
+
+            if not images:
+                new_nodes.append(node)
+                continue
+
+            original_text = node.text
+            remaining_text = original_text
+
+            for alt, link in images:
+
+                text = remaining_text.split(f"![{alt}]({link})", 1)
+
+                current_text = text[0]
+                remaining_text = text[1]
+
+                if current_text != "":
+
+                    new_nodes.append(TextNode(current_text, TextType.TEXT))
+                new_nodes.append(TextNode(alt, TextType.IMAGE, link))
+
+            if remaining_text != "":
+                new_nodes.append(TextNode(remaining_text, TextType.TEXT))
+
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+        else:
+            links = extract_markdown_links(node.text)
+
+            if not links:
+                new_nodes.append(node)
+                continue
+
+            original_text = node.text
+            remaining_text = original_text
+
+            for label, link in links:
+
+                text = remaining_text.split(f"[{label}]({link})", 1)
+
+                current_text = text[0]
+                remaining_text = text[1]
+
+                if current_text != "":
+                    new_nodes.append(TextNode(current_text, TextType.TEXT))
+                new_nodes.append(TextNode(label, TextType.LINK, link))
+
+            if remaining_text != "":
+                new_nodes.append(TextNode(remaining_text, TextType.TEXT))
+
+    return new_nodes
+
+
+
