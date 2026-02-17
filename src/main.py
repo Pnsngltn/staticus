@@ -1,8 +1,31 @@
-from textnode import TextNode, TextType
+import os
+import shutil
+
+
+def recursive_copy(source, destination):
+    # Delete all files in destination directory
+    if os.path.exists(destination):
+        shutil.rmtree(destination)
+
+    print(f"Creating directory: {destination}")
+    os.mkdir(destination)
+
+    # List contents of source directory
+    contents = os.listdir(source)
+
+    for item in contents:
+        orgn = os.path.join(source, item)
+        dest = os.path.join(destination, item)
+        if os.path.isfile(orgn):
+            print(f"Copying file: {orgn} to {dest}")
+            shutil.copy(orgn, dest)
+        else:
+            recursive_copy(orgn, dest)
+
 
 def main():
-    node = TextNode("go to boot.dev", TextType.LINK, "https://www.boot.dev")
-    print(node)
+    recursive_copy("static", "public")
+
 
 if __name__ == "__main__":
     main()
