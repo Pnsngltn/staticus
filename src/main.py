@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from getcontent import generate_page
+
 
 def recursive_copy(source, destination):
     # Delete all files in destination directory
@@ -25,6 +27,7 @@ def recursive_copy(source, destination):
 
 def main():
     recursive_copy("static", "public")
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 
 if __name__ == "__main__":
